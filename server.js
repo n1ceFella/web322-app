@@ -1,3 +1,17 @@
+/*********************************************************************************
+*  WEB322 – Assignment 02
+*  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
+*  (including 3rd party web sites) or distributed to other students.
+* 
+*  Name: Volodymyr Labliuk Student ID: 147302202 Date: 06.02.2022
+*
+*  Online (Heroku) URL: https://powerful-journey-57096.herokuapp.com/
+*
+*  GitHub Repository URL: https://github.com/n1ceFella/web322-app
+*
+********************************************************************************/ 
+
+
 const express = require("express");
 // const { listen } = require("express/lib/application");
 // const { send } = require("express/lib/response");
