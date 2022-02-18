@@ -36,10 +36,20 @@ module.exports.getPublishedPosts = function() {
     }
     return new Promise((resolve, reject) => {
         temp.length == 0 ? reject('No results returned') : resolve(temp); 
-    })
+    });
 };
 module.exports.getCategories = function() {
     return new Promise((resolve, reject) => {
         categories.length == 0 ? reject('No results returned') : resolve(categories) ; 
-    })
+    });
+}
+
+module.exports.addPost = (postData) => {
+    return new Promise((resolve, reject) => {
+        postData.published == null ? 
+            postData.published = false : postData.published = true;
+        postData.id = posts.length() + 1;
+        posts.push(postData);
+        resolve(postData); //might be posts
+    });
 }
