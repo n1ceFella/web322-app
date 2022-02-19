@@ -56,25 +56,31 @@ module.exports.addPost = (postData) => {
 }
 
 module.exports.getPostsByCategory = (category) => {
-    var categoryList = [];
-    categoryList = posts.filter(e => e.category == category);
+    //var categoryList = [];
+    
     return new Promise((resolve, reject) => {
+        var categoryList = posts.filter(e => e.category == category);
         categoryList.length == 0 ? reject('No results returned') : resolve(categoryList); 
     });
 }
 
 module.exports.getPostsByMinDate = (minDateStr) => {
-    var dateList = [];
-    dateList = posts.filter(e => new Date(e.postData) >= new Date(minDateStr)); //
+    //var dateList = [];
+    
     return new Promise((resolve, reject) => {
+        //var minDate = new Date(minDateStr);
+        var dateList = posts.filter(e => new Date(e.postData) >= new Date(minDateStr)); //
+        // if (dateList.length == 0) {
+        //     reject('no results returned ');
+        // }
+        //resolve(dateList);
         dateList.length == 0 ? reject('No results returned') : resolve(dateList);
     });
 }
 
 module.exports.getPostsById = (id) => {
-    var post = null;
     //var flag = true;
-    var post = posts.filter(e => e.id == id);
+    
     // for(i = 0; i < posts.length && flag; i++){
     //     if(posts[i].id == id){
     //         post = posts[i];
@@ -82,6 +88,7 @@ module.exports.getPostsById = (id) => {
     //     }
     // }
     return new Promise((resolve, reject) => {
+        var post = posts.filter(e => e.id == id);
         post == null ? reject('No results returned') : resolve(post);
     });
 }

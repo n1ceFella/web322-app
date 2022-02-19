@@ -98,29 +98,33 @@ _server.get("/blog", (req, res) => {
 });
 
 _server.get("/posts", (req, res) => {
-    _blogService.getAllPosts().then((data) => {
-        if(req.query.category){
-            _blogService.getPostsByCategory(req.query.category).then((data) => {
-                res.json(data);
-            }).catch((err) => {
-                return {"Error message": err.message};
-            })
-        } else if(req.query.minDate) {
-            _blogService.getPostsByMinDate(req.query.minDate).then((data) => {
-                res.json(data);
-            }).catch((err) => {
-                return {"Error message": err.message};
-            })
-        } else {
+    if(req.query.category){
+        _blogService.getPostsByCategory(req.query.category).then((data) => {
             res.json(data);
-        }
-    }).catch((err) => {
-        return {"Error message": err.message};
-    })
+        }).catch((err) => {
+            return {"Error message": err.message};
+        })
+    } else if(req.query.minDate) {
+        _blogService.getPostsByMinDate(req.query.minDate).then((data) => {
+            res.json({data});
+        }).catch((err) => {
+            return {"Error message": err.message};
+        })
+    } else {
+        _blogService.getAllPosts().then((data) => {
+            res.json(data);
+        }).catch((err) => {
+            return {"Error message": err.message};
+        })
+    }
 });
 
 _server.get("/posts/:id", (req, res) => {
-    res.json(_blogService.getPostsById(req.params.id));
+    _blogService.getPostsById(req.params.id).then((data) => {
+        res.json(data);
+    }).catch((err) => {
+        return {"Error message": err.message};
+    })
 });
 
 _server.get("/categories", (req, res) => {
