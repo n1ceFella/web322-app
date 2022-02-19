@@ -21,7 +21,7 @@ const _server = express();
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2
 const streamifier = require('streamifier')
-const upload = multer(); // no { storage: storage } since we are not using disk storage
+
 
 cloudinary.config({
     cloud_name: 'ditgfy779',
@@ -30,7 +30,7 @@ cloudinary.config({
     secure: true
 });
 
-
+const upload = multer(); // no { storage: storage } since we are not using disk storage
 
 const HTTP_PORT = process.env.PORT || 8080;
 
@@ -48,20 +48,20 @@ _server.get("/about", (req, res) => {
     res.sendFile(_path.join(__dirname, './views/about.html'));
 });
 
-_server.get("/post/add", (req, res) => {
-    res.sendFile(_path.join(__dirname, '."/views/addPost.html'));
+_server.get("/posts/add", (req, res) => {
+    res.sendFile(_path.join(__dirname, './views/addPosts.html'));
 });
 
-_server.post("/post/add", (req, res) => {
+_server.post("/posts/add",upload.single("featureImage") , (req, res) => {
     let streamUpload = (req) => {
         return new Promise((resolve, reject) => {
             let stream = cloudinary.uploader.upload_stream(
                 (error, result) => {
-                if (result) {
-                    resolve(result);
-                } else {
-                    reject(error);
-                }
+                    if (result) {
+                        resolve(result);
+                     } else {
+                        reject(error);
+                    }
                 }
             );
     
@@ -79,9 +79,14 @@ _server.post("/post/add", (req, res) => {
         req.body.featureImage = uploaded.url;
     
         // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
-    
+        _blogService.addPost(req.body).then(() => {
+            res.redirect('/posts')
+        }).catch((error) => {
+            res.status(500).send(error)
+        });
     });
     
+    //_blogService.addPost()
 });
 
 _server.get("/blog", (req, res) => {
@@ -90,15 +95,33 @@ _server.get("/blog", (req, res) => {
     }).catch((err) => {
         return {"Error message": err.message};
     })
-})
+});
 
 _server.get("/posts", (req, res) => {
     _blogService.getAllPosts().then((data) => {
-        res.json(data);
+        if(req.query.category){
+            _blogService.getPostsByCategory(req.query.category).then((data) => {
+                res.json(data);
+            }).catch((err) => {
+                return {"Error message": err.message};
+            })
+        } else if(req.query.minDate) {
+            _blogService.getPostsByMinDate(req.query.minDate).then((data) => {
+                res.json(data);
+            }).catch((err) => {
+                return {"Error message": err.message};
+            })
+        } else {
+            res.json(data);
+        }
     }).catch((err) => {
         return {"Error message": err.message};
     })
-})
+});
+
+_server.get("/posts/:id", (req, res) => {
+    res.json(_blogService.getPostsById(req.params.id));
+});
 
 _server.get("/categories", (req, res) => {
     _blogService.getCategories().then((data) => {
@@ -106,7 +129,7 @@ _server.get("/categories", (req, res) => {
     }).catch((err) => {
         return {"Error message": err.message};
     })
-})
+});
 
 _server.get("*", (req, res) => {
     res.sendFile(_path.join(__dirname, "./views/error.html"));
@@ -117,4 +140,4 @@ _blogService.initialize().then(() => {
 }).catch((err) => {
     console.log(err);
     res.status(404).send("File couldn't be read");
-})
+});

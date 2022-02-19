@@ -45,11 +45,43 @@ module.exports.getCategories = function() {
 }
 
 module.exports.addPost = (postData) => {
+    postData.id = posts.length + 1;
+    postData.published == null ? 
+    postData.published = false : postData.published = true;
+    
+    posts.push(postData);
     return new Promise((resolve, reject) => {
-        postData.published == null ? 
-            postData.published = false : postData.published = true;
-        postData.id = posts.length() + 1;
-        posts.push(postData);
-        resolve(postData); //might be posts
+        resolve(); //might be posts
+    });
+}
+
+module.exports.getPostsByCategory = (category) => {
+    var categoryList = [];
+    categoryList = posts.filter(e => e.category == category);
+    return new Promise((resolve, reject) => {
+        categoryList.length == 0 ? reject('No results returned') : resolve(categoryList); 
+    });
+}
+
+module.exports.getPostsByMinDate = (minDateStr) => {
+    var dateList = [];
+    dateList = posts.filter(e => new Date(e.postData) >= new Date(minDateStr)); //
+    return new Promise((resolve, reject) => {
+        dateList.length == 0 ? reject('No results returned') : resolve(dateList);
+    });
+}
+
+module.exports.getPostsById = (id) => {
+    var post = null;
+    //var flag = true;
+    var post = posts.filter(e => e.id == id);
+    // for(i = 0; i < posts.length && flag; i++){
+    //     if(posts[i].id == id){
+    //         post = posts[i];
+    //         flag = false;
+    //     }
+    // }
+    return new Promise((resolve, reject) => {
+        post == null ? reject('No results returned') : resolve(post);
     });
 }
