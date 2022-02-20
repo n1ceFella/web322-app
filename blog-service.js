@@ -51,44 +51,28 @@ module.exports.addPost = (postData) => {
     
     posts.push(postData);
     return new Promise((resolve, reject) => {
-        resolve(); //might be posts
+        resolve();
     });
 }
 
 module.exports.getPostsByCategory = (category) => {
-    //var categoryList = [];
-    
+    var categoryList = posts.filter(element => element.category == category);
     return new Promise((resolve, reject) => {
-        var categoryList = posts.filter(e => e.category == category);
         categoryList.length == 0 ? reject('No results returned') : resolve(categoryList); 
     });
 }
 
 module.exports.getPostsByMinDate = (minDateStr) => {
-    //var dateList = [];
-    
+
+    var dateList = posts.filter(element => new Date(element.postDate) >= new Date(minDateStr));
     return new Promise((resolve, reject) => {
-        //var minDate = new Date(minDateStr);
-        var dateList = posts.filter(e => new Date(e.postData) >= new Date(minDateStr)); //
-        // if (dateList.length == 0) {
-        //     reject('no results returned ');
-        // }
-        //resolve(dateList);
         dateList.length == 0 ? reject('No results returned') : resolve(dateList);
     });
 }
 
 module.exports.getPostsById = (id) => {
-    //var flag = true;
-    
-    // for(i = 0; i < posts.length && flag; i++){
-    //     if(posts[i].id == id){
-    //         post = posts[i];
-    //         flag = false;
-    //     }
-    // }
+    var post = posts.filter(element => element.id == id);
     return new Promise((resolve, reject) => {
-        var post = posts.filter(e => e.id == id);
         post == null ? reject('No results returned') : resolve(post);
     });
 }
