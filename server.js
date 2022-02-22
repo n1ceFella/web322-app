@@ -93,7 +93,7 @@ _server.get("/blog", (req, res) => {
     _blogService.getPublishedPosts().then((data) => {
         res.json(data);
     }).catch((err) => {
-        return {"Error message": err.message};
+        res.json("Error message : " + err);
     })
 });
 
@@ -102,19 +102,19 @@ _server.get("/posts", (req, res) => {
         _blogService.getPostsByCategory(req.query.category).then((data) => {
             res.json(data);
         }).catch((err) => {
-            return {"Error message": err.message};
+            res.json("Error message : " + err);
         })
     } else if(req.query.minDate) {
         _blogService.getPostsByMinDate(req.query.minDate).then((data) => {
-            res.json({data});
+            res.json(data);
         }).catch((err) => {
-            return {"Error message": err.message};
+            res.json("Error message : " + err);
         })
     } else {
         _blogService.getAllPosts().then((data) => {
             res.json(data);
         }).catch((err) => {
-            return {"Error message": err.message};
+            res.json("Error message : " + err);
         })
     }
 });
@@ -123,7 +123,7 @@ _server.get("/posts/:id", (req, res) => {
     _blogService.getPostsById(req.params.id).then((data) => {
         res.json(data);
     }).catch((err) => {
-        return {"Error message": err.message};
+        res.json("Error message : " + err);
     })
 });
 
@@ -131,7 +131,7 @@ _server.get("/categories", (req, res) => {
     _blogService.getCategories().then((data) => {
         res.json(data);
     }).catch((err) => {
-        return {"Error message": err.message};
+        res.json("Error message : " + err);
     })
 });
 
