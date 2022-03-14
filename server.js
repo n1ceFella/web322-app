@@ -19,8 +19,9 @@ const _path = require("path");
 const _blogService = require("./blog-service");
 const _server = express();
 const multer = require("multer");
-const cloudinary = require('cloudinary').v2
-const streamifier = require('streamifier')
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
+const exphbs = require('express-handlebars');
 
 
 cloudinary.config({
@@ -29,6 +30,32 @@ cloudinary.config({
     api_secret: 'Bj-gmH3D9nxJ7c-68oJ80GwtC6U',
     secure: true
 });
+
+_server.engine('.hbs', exphbs.engine({ 
+    extname: '.hbs', 
+    defaultLayout: 'main',
+    helpers: {
+        navLink: function(url, options){
+            return '<li' + 
+                ((url == _server.locals.activeRoute) ? ' class="active" ' : '') + 
+                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+        equal: function (lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        },
+        safeHTML: function(context){
+            return stripJs(context);
+        }
+    }
+}));
+
+_server.set('view engine', '.hbs');
 
 const upload = multer(); // no { storage: storage } since we are not using disk storage
 
@@ -39,17 +66,45 @@ _server.use(express.static('public'));
 function onHttpStart() {
     console.log("Express http server listening on port: " + HTTP_PORT);
 }
+
+_server.use(function(req,res,next){
+    let route = req.path.substring(1);
+    _server.locals.activeRoute = (route == "/") ? "/" : "/" + route.replace(/\/(.*)/, "");
+    _server.locals.viewingCategory = req.query.category;
+    next();
+});
+
  
 _server.get("/", (req, res) => {
     res.redirect('/about');
 });
 
 _server.get("/about", (req, res) => {
-    res.sendFile(_path.join(__dirname, './views/about.html'));
+    var someData = {
+        name: "Volodymyr",
+        age: 31,
+        occupation: "developer",
+        company: "self employed"
+    };
+    
+    res.render('about', {
+        data: someData,
+        layout: 'main.hbs' // do not use the default Layout (main.hbs)
+    });
 });
 
 _server.get("/posts/add", (req, res) => {
-    res.sendFile(_path.join(__dirname, './views/addPosts.html'));
+    var someData = {
+        name: "Volodymyr",
+        age: 31,
+        occupation: "developer",
+        company: "self employed"
+    };
+    
+    res.render('about', {
+        data: someData,
+        layout: 'main.hbs' // do not use the default Layout (main.hbs)
+    });
 });
 
 _server.post("/posts/add",upload.single("featureImage") , (req, res) => {
