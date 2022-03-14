@@ -1,9 +1,9 @@
 /*********************************************************************************
-*  WEB322 – Assignment 03
+*  WEB322 – Assignment 04
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Volodymyr Labliuk Student ID: 147302202 Date: 21.02.2022
+*  Name: Volodymyr Labliuk Student ID: 147302202 Date: 14.03.2022
 *
 *  Online (Heroku) URL: https://afternoon-temple-65298.herokuapp.com/
 *
@@ -22,6 +22,7 @@ const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 const exphbs = require('express-handlebars');
+const stripJs = require('strip-js');
 
 
 cloudinary.config({
@@ -76,7 +77,7 @@ _server.use(function(req,res,next){
 
  
 _server.get("/", (req, res) => {
-    res.redirect('/about');
+    res.redirect('/blog');
 });
 
 _server.get("/about", (req, res) => {
@@ -101,9 +102,9 @@ _server.get("/posts/add", (req, res) => {
         company: "self employed"
     };
     
-    res.render('about', {
+    res.render('addPost', {
         data: someData,
-        layout: 'main.hbs' // do not use the default Layout (main.hbs)
+        layout: false // do not use the default Layout (main.hbs) 'main.hbs'
     });
 });
 
@@ -144,49 +145,131 @@ _server.post("/posts/add",upload.single("featureImage") , (req, res) => {
     //_blogService.addPost()
 });
 
-_server.get("/blog", (req, res) => {
-    _blogService.getPublishedPosts().then((data) => {
-        res.json(data);
-    }).catch((err) => {
-        res.json("Error message : " + err);
-    })
+_server.get('/blog', async (req, res) => {
+
+    // Declare an object to store properties for the view
+    let viewData = {};
+
+    try{
+
+        // declare empty array to hold "post" objects
+        let posts = [];
+
+        // if there's a "category" query, filter the returned posts by category
+        if(req.query.category){
+            // Obtain the published "posts" by category
+            posts = await _blogService.getPublishedPostsByCategory(req.query.category);
+        }else{
+            // Obtain the published "posts"
+            posts = await _blogService.getPublishedPosts();
+        }
+
+        // sort the published posts by postDate
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+
+        // get the latest post from the front of the list (element 0)
+        let post = posts[0]; 
+
+        // store the "posts" and "post" data in the viewData object (to be passed to the view)
+        viewData.posts = posts;
+        viewData.post = post;
+
+    }catch(err){
+        viewData.message = "no results";
+    }
+
+    try{
+        // Obtain the full list of "categories"
+        let categories = await _blogService.getCategories();
+
+        // store the "categories" data in the viewData object (to be passed to the view)
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+
+    // render the "blog" view with all of the data (viewData)
+    res.render("blog", {data: viewData})
+
 });
 
 _server.get("/posts", (req, res) => {
     if(req.query.category){
         _blogService.getPostsByCategory(req.query.category).then((data) => {
-            res.json(data);
+            res.render("posts", {posts:data});
         }).catch((err) => {
-            res.json("Error message : " + err);
+            res.render("posts", {message: "no results"});
         })
     } else if(req.query.minDate) {
         _blogService.getPostsByMinDate(req.query.minDate).then((data) => {
-            res.json(data);
+            res.render("posts", {posts:data});
         }).catch((err) => {
-            res.json("Error message : " + err);
+            res.render("posts", {message: "no results"});
         })
     } else {
         _blogService.getAllPosts().then((data) => {
-            res.json(data);
+            res.render("posts", {posts:data});
         }).catch((err) => {
-            res.json("Error message : " + err);
+            res.render("posts", {message: "no results"});
         })
     }
 });
 
-_server.get("/posts/:id", (req, res) => {
-    _blogService.getPostsById(req.params.id).then((data) => {
-        res.json(data);
-    }).catch((err) => {
-        res.json("Error message : " + err);
-    })
+_server.get('/blog/:id', async (req, res) => {
+
+    // Declare an object to store properties for the view
+    let viewData = {};
+
+    try{
+
+        // declare empty array to hold "post" objects
+        let posts = [];
+
+        // if there's a "category" query, filter the returned posts by category
+        if(req.query.category){
+            // Obtain the published "posts" by category
+            posts = await _blogService.getPublishedPostsByCategory(req.query.category);
+        }else{
+            // Obtain the published "posts"
+            posts = await _blogService.getPublishedPosts();
+        }
+
+        // sort the published posts by postDate
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+
+        // store the "posts" and "post" data in the viewData object (to be passed to the view)
+        viewData.posts = posts;
+
+    }catch(err){
+        viewData.message = "no results";
+    }
+
+    try{
+        // Obtain the post by "id"
+        viewData.post = await _blogService.getPostById(req.params.id);
+    }catch(err){
+        viewData.message = "no results"; 
+    }
+
+    try{
+        // Obtain the full list of "categories"
+        let categories = await _blogService.getCategories();
+
+        // store the "categories" data in the viewData object (to be passed to the view)
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+
+    // render the "blog" view with all of the data (viewData)
+    res.render("blog", {data: viewData})
 });
 
 _server.get("/categories", (req, res) => {
     _blogService.getCategories().then((data) => {
-        res.json(data);
+        res.render("categories", {categories:data});
     }).catch((err) => {
-        res.json("Error message : " + err);
+        res.render("categories", {message: "no results"})
     })
 });
 

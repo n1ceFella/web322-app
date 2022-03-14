@@ -44,22 +44,23 @@ module.exports.getCategories = function() {
     });
 }
 
-module.exports.addPost = (postData) => {
-    postData.id = posts.length + 1;
-    postData.published == null ? 
-    postData.published = false : postData.published = true;
-    
-    posts.push(postData);
-    return new Promise((resolve, reject) => {
-        resolve();
-    });
-}
-
 module.exports.getPostsByCategory = (category) => {
     var categoryList = posts.filter(element => element.category == category);
     return new Promise((resolve, reject) => {
         categoryList.length == 0 ? reject('No results returned') : resolve(categoryList); 
     });
+}
+
+module.exports.getPublishedPostsByCategory = (category) => {
+    var publishedPosts = [];
+    return new Promise((resolve, reject) => {
+    for (i = 0; i < posts.length; i++) {
+        if (posts[i].published && posts[i].category == category) {
+            publishedPosts.push(posts[i]);
+        }
+    }
+        publishedPosts && publishedPosts.length > 0 ? resolve(publishedPosts) : reject('No results returned'); 
+    })
 }
 
 module.exports.getPostsByMinDate = (minDateStr) => {
@@ -76,3 +77,32 @@ module.exports.getPostsById = (id) => {
         post == null ? reject('No results returned') : resolve(post);
     });
 }
+
+module.exports.addPost = (postData) => {
+    postData.id = posts.length + 1;
+    postData.published == null ? 
+    postData.published = false : postData.published = true;
+    postData.postDate = "2022-03-14";
+    posts.push(postData);
+    return new Promise((resolve, reject) => {
+        resolve();
+    });
+}
+
+// module.exports.addPost = (postData) => {
+//     postData.published == undefined ? postData.published = false : postData.published = true;
+//             postData.published = false;
+//     postData.id = posts.length + 1;
+    
+//     posts.push(postData);
+    
+//     return new Promise((resolve, reject) => {
+//         // Check if push was successful
+//         for (i = 0; i < posts.length; i++) {
+//             if (posts[i] == postData) {
+//                 resolve(postData);
+//             }
+//         }
+//         reject('No results returned');
+//     })
+// };
