@@ -71,7 +71,7 @@ module.exports.getPostsByMinDate = (minDateStr) => {
     });
 }
 
-module.exports.getPostsById = (id) => {
+module.exports.getPostById = (id) => {
     var post = posts.find(element => element.id == id);
     return new Promise((resolve, reject) => {
         post == null ? reject('No results returned') : resolve(post);
