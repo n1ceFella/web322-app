@@ -1,108 +1,76 @@
-const fs = require("fs"); 
+// const fs = require("fs"); 
 
-var posts = [];
-var categories = [];
+// var posts = [];
+// var categories = [];
+
+const Sequelize = require('sequelize');
+var sequelize = new Sequelize('d1beljnlb2sklq', 'rsjkwyzcphzwip', '94acfb75a02d8c835c8e08694d7cbe1208004ab14bf979037266632b22ef7b92', {
+    host: 'ec2-44-194-92-192.compute-1.amazonaws.com',
+    dialect: 'postgres',
+    port: 5432,
+    dialectOptions: {
+        ssl: { rejectUnauthorized: false }
+    },
+    query: { raw: true }
+});
+
 
 module.exports.initialize = function() {
     return new Promise((resolve, reject) => {
-        fs.readFile('./data/posts.json', 'utf8', (err, data) => {
-            if (err) throw err;
-            else {
-                posts = JSON.parse(data,posts);
-                fs.readFile('./data/categories.json', 'utf8', (err, data) => {  
-                    if (err) throw err;
-                    else {
-                        categories = JSON.parse(data,categories);
-                        console.log("data retrieved");
-                        resolve("File has been read");
-                    }
-                })
-            }                                                                                     
-        })
-    });
+        reject();
+});
+
 }
 
 module.exports.getAllPosts = function() {
     return new Promise((resolve, reject) => {
-        posts.length == 0 ? reject('No results returned') : resolve(posts)
-    })
+        reject();
+});
+
 };
 module.exports.getPublishedPosts = function() {
-    var temp = [];
-    for (i = 0; i < posts.length; i++) {
-        if (posts[i].published) {
-            temp.push(posts[i]);
-        }
-    }
     return new Promise((resolve, reject) => {
-        temp.length == 0 ? reject('No results returned') : resolve(temp); 
-    });
+        reject();
+});
+
 };
 module.exports.getCategories = function() {
     return new Promise((resolve, reject) => {
-        categories.length == 0 ? reject('No results returned') : resolve(categories) ; 
-    });
+        reject();
+});
+
 }
 
 module.exports.getPostsByCategory = (category) => {
-    var categoryList = posts.filter(element => element.category == category);
     return new Promise((resolve, reject) => {
-        categoryList.length == 0 ? reject('No results returned') : resolve(categoryList); 
-    });
+        reject();
+});
+
 }
 
 module.exports.getPublishedPostsByCategory = (category) => {
-    var publishedPosts = [];
     return new Promise((resolve, reject) => {
-    for (i = 0; i < posts.length; i++) {
-        if (posts[i].published && posts[i].category == category) {
-            publishedPosts.push(posts[i]);
-        }
-    }
-        publishedPosts && publishedPosts.length > 0 ? resolve(publishedPosts) : reject('No results returned'); 
-    })
+        reject();
+});
+
 }
 
 module.exports.getPostsByMinDate = (minDateStr) => {
 
-    var dateList = posts.filter(element => new Date(element.postDate) >= new Date(minDateStr));
     return new Promise((resolve, reject) => {
-        dateList.length == 0 ? reject('No results returned') : resolve(dateList);
-    });
+        reject();
+});
+
 }
 
 module.exports.getPostById = (id) => {
-    var post = posts.find(element => element.id == id);
     return new Promise((resolve, reject) => {
-        post == null ? reject('No results returned') : resolve(post);
-    });
+        reject();
+});
 }
 
 module.exports.addPost = (postData) => {
-    postData.id = posts.length + 1;
-    postData.published == null ? 
-    postData.published = false : postData.published = true;
-    postData.postDate = "2022-03-14";
-    posts.push(postData);
     return new Promise((resolve, reject) => {
-        resolve();
-    });
+        reject();
+});
 }
-
-// module.exports.addPost = (postData) => {
-//     postData.published == undefined ? postData.published = false : postData.published = true;
-//             postData.published = false;
-//     postData.id = posts.length + 1;
-    
-//     posts.push(postData);
-    
-//     return new Promise((resolve, reject) => {
-//         // Check if push was successful
-//         for (i = 0; i < posts.length; i++) {
-//             if (posts[i] == postData) {
-//                 resolve(postData);
-//             }
-//         }
-//         reject('No results returned');
-//     })
-// };
