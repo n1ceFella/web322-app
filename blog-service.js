@@ -14,6 +14,18 @@ var sequelize = new Sequelize('d1beljnlb2sklq', 'rsjkwyzcphzwip', '94acfb75a02d8
     query: { raw: true }
 });
 
+var Post = sequelize.define('Post', {
+    body: Sequelize.TEXT,
+    title: Sequelize.STRING,
+    postDate: Sequelize.DATE,
+    featureImage: Sequelize.STRING,
+    published: Sequelize.BOOLEAN
+});
+var Category = sequelize.define('Category', {
+    category: Sequelize.STRING
+});
+
+
 
 module.exports.initialize = function() {
     return new Promise((resolve, reject) => {
