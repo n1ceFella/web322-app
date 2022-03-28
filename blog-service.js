@@ -4,7 +4,7 @@
 // var categories = [];
 
 const Sequelize = require('sequelize');
-var sequelize = new Sequelize('d1beljnlb2sklq', 'rsjkwyzcphzwip', '94acfb75a02d8c835c8e08694d7cbe1208004ab14bf979037266632b22ef7b92', {
+var sequelize = new Sequelize("d1beljnlb2sklq", "rsjkwyzcphzwip", "94acfb75a02d8c835c8e08694d7cbe1208004ab14bf979037266632b22ef7b92", {
     host: 'ec2-44-194-92-192.compute-1.amazonaws.com',
     dialect: 'postgres',
     port: 5432,
@@ -29,9 +29,12 @@ Post.belongsTo(Category, {foreignKey: 'category'});
 
 module.exports.initialize = function() {
     return new Promise((resolve, reject) => {
-        sequelize.sync().then(function(){resolve()}).catch(function(){reject("unable to sync the database")});
-});
-
+        sequelize.authenticate().then(function(){
+            resolve()
+        }).catch(function(){
+            reject("unable to sync the database")
+        });
+    });
 }
 
 module.exports.getAllPosts = function() {
