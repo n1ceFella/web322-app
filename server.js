@@ -102,41 +102,29 @@ _server.get("/about", (req, res) => {
     });
 });
 
-_server.get("/posts/add", (req, res) => {
-    // var someData = {
-    //     name: "Volodymyr",
-    //     age: 31,
-    //     occupation: "developer",
-    //     company: "self employed"
-    // };
+_server.get("/posts/add", function (req, res) {
 
-    // res.render("addPost", {categories: data});
-    
-    // res.render('addPost', {
-    //     data: someData,
-    //     layout: false // do not use the default Layout (main.hbs) 'main.hbs'
-    // });
+//     _blogService.getCategories().then((data) => {
+//         res.render("addPost", {categories:data});
+// }).catch((err) => {
+//     res.render("addPost", {categories:[]});
+// })
 
-    //CHECH THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     _blogService.getCategories().then((data) => {
-            res.render("addPost", {categories:data});
-    }).catch((err) => {
-        res.render("addPost", {categories:[]});
-    })
-
+        res.render("addPost", {
+          categories: data,
+        });
+      }).catch(() => {
+        res.render("addPost", {
+          categories: [],
+        });
+      });
 });
 
-_server.get("/categories/add", (req, res) => {
-    var someData = {
-        name: "Volodymyr",
-        age: 31,
-        occupation: "developer",
-        company: "self employed"
-    };
-    
-    res.render('addCategory', {
-        data: someData,
-        layout: false // do not use the default Layout (main.hbs) 'main.hbs'
+_server.get("/categories/add", function (req, res) {
+    res.render("addCategory", {
+      data: null,
+      layout: "main",
     });
 });
 
@@ -156,16 +144,13 @@ _server.post("/posts/add",upload.single("featureImage") , (req, res) => {
             streamifier.createReadStream(req.file.buffer).pipe(stream);
         });
     };
-    
     async function upload(req) {
         let result = await streamUpload(req);
         console.log(result);
         return result;
     }
-    
     upload(req).then((uploaded)=>{
         req.body.featureImage = uploaded.url;
-    
         // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
         _blogService.addPost(req.body).then(() => {
             res.redirect('/posts')
@@ -173,46 +158,57 @@ _server.post("/posts/add",upload.single("featureImage") , (req, res) => {
             res.status(500).send(error)
         });
     });
-    
-    //_blogService.addPost()
+//     //_blogService.addPost()
 });
 
+
 _server.post("/categories/add", (req, res) => {
-    let streamUpload = (req) => {
-        return new Promise((resolve, reject) => {
-            let stream = cloudinary.uploader.upload_stream(
-                (error, result) => {
-                    if (result) {
-                        resolve(result);
-                     } else {
-                        reject(error);
-                    }
-                }
-            );
+    _blogService
+      .addCategory(req.body)
+      .then(() => {
+        res.redirect("/categories");
+      })
+      .catch((error) => {
+        res.status(500).send(error);
+      });
+  });
+
+  //MY!!!!
+//   _server.post("/categories/add",upload.single("featureImage"), (req, res) => {
+//     let streamUpload = (req) => {
+//         return new Promise((resolve, reject) => {
+//             let stream = cloudinary.uploader.upload_stream(
+//                 (error, result) => {
+//                     if (result) {
+//                         resolve(result);
+//                      } else {
+//                         reject(error);
+//                     }
+//                 }
+//             );
     
-            streamifier.createReadStream(req.file.buffer).pipe(stream);
-        });
-    };
+//             streamifier.createReadStream(req.file.buffer).pipe(stream);
+//         });
+//     };
     
-    async function upload(req) {
-        let result = await streamUpload(req);
-        console.log(result);
-        return result;
-    }
+//     async function upload(req) {
+//         let result = await streamUpload(req);
+//         console.log(result);
+//         return result;
+//     }
     
-    upload(req).then((uploaded)=>{
-        req.body.featureImage = uploaded.url;
+//     upload(req).then((uploaded)=>{
+//         req.body.featureImage = uploaded.url;
     
-        // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
-        _blogService.addCategory(req.body).then(() => {
-            res.redirect('/categories'); //  /category
-        }).catch((error) => {
-            res.status(500).send(error);
-        });
-    });
+//         // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
+//         _blogService.addCategory(req.body).then(() => {
+//             res.redirect('/categories'); //  /category
+//         }).catch((error) => {
+//             res.status(500).send(error);
+//         });
+//     });
+// });
     
-    //_blogService.addPost()
-});
 
 _server.get('/blog', async (req, res) => {
 
@@ -220,10 +216,8 @@ _server.get('/blog', async (req, res) => {
     let viewData = {};
 
     try{
-
         // declare empty array to hold "post" objects
         let posts = [];
-
         // if there's a "category" query, filter the returned posts by category
         if(req.query.category){
             // Obtain the published "posts" by category
@@ -232,25 +226,19 @@ _server.get('/blog', async (req, res) => {
             // Obtain the published "posts"
             posts = await _blogService.getPublishedPosts();
         }
-
         // sort the published posts by postDate
         posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
-
         // get the latest post from the front of the list (element 0)
         let post = posts[0]; 
-
         // store the "posts" and "post" data in the viewData object (to be passed to the view)
         viewData.posts = posts;
         viewData.post = post;
-
     }catch(err){
         viewData.message = "no results";
     }
-
     try{
         // Obtain the full list of "categories"
         let categories = await _blogService.getCategories();
-
         // store the "categories" data in the viewData object (to be passed to the view)
         viewData.categories = categories;
     }catch(err){
