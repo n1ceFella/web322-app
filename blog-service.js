@@ -52,6 +52,7 @@ module.exports.getAllPosts = function() {
 };
 module.exports.getPublishedPosts = function() {
     //sequelize.sync().then(function () {
+    return new Promise((resolve, reject) => {
         Post.findAll({
             where: {
                 published: true //might be ID
@@ -61,7 +62,7 @@ module.exports.getPublishedPosts = function() {
         }).catch(function(){
             reject("no results returned");
         });
-    //});
+    });
 
 };
 module.exports.getCategories = () => {
@@ -94,6 +95,7 @@ module.exports.getPostsByCategory = (categoryID) => {
 
 module.exports.getPublishedPostsByCategory = (categoryID) => {
     //sequelize.sync().then(function () {
+    return new Promise((resolve, reject) => {
         Post.findAll({
             where: {
                 published: true,
@@ -104,7 +106,7 @@ module.exports.getPublishedPostsByCategory = (categoryID) => {
         }).catch(function(){
             reject("no results returned");
         });
-    //});
+    });
 
 }
 
@@ -142,56 +144,65 @@ module.exports.getPostById = (postID) => {
 }
 
 module.exports.addPost = (postData) => {
-    postData.published = (postData.published) ? true : false;
-    for (const prop in obj) {
-        if(prop == ""){
-            prop = null;
+    return new Promise((resolve, reject) => {
+        postData.published = (postData.published) ? true : false;
+        for (prop in postData) {
+            if(postData[prop] == ""){
+                postData[prop] = null;
+            }
         }
-    }
-    postData.postDate = new Date();
-    Post.create({
-        body: postData.body,
-        title: postData.title,
-        postDate: postData.postDate,
-        featureImage: postData.featureImage,
-        published: postData.published
-    }).then(function (post) {
-        resolve(post)
-    }).catch(function(){
-        reject("unable to create post");
+        postData.postDate = new Date();
+        Post.create({
+            body: postData.body,
+            title: postData.title,
+            postDate: postData.postDate,
+            featureImage: postData.featureImage,
+            published: postData.published,
+            category: postData.Category
+        }).then(function (post) {
+            resolve(post)
+        }).catch(function(){
+            reject("unable to create post");
+        });
     });
 }
 
 module.exports.addCategory = (categoryData) =>{
-    for (const prop in obj) {
-        if(prop == ""){
-            prop = null;
+    return new Promise((resolve, reject) => {
+        for (prop in categoryData) {
+            if(categoryData[prop] == ""){
+                categoryData[prop] = null;
+            }
         }
-    }
-    Category.create({
-        category: categoryData.category
-    }).then(function (post) {
-        resolve(post)
-    }).catch(function(){
-        reject("unable to create category");
+        Category.create({
+            category: categoryData.category
+        }).then(function (post) {
+            resolve(post)
+        }).catch(function(){
+            reject("unable to create category");
+        });
     });
 }
 
 module.exports.deleteCategoryById = (categoryID) => {
-    Category.destroy({
-        where: { id: categoryID }
-    }).then(function (data) {
-         resolve(data)
-    }).catch(function(){
-        reject("error in category destroy method");
+    return new Promise((resolve, reject) => {
+        Category.destroy({
+            where: { id: categoryID }
+        }).then(function (data) {
+            resolve(data)
+        }).catch(function(){
+            reject("error in category destroy method");
+        });
     });
 }
 module.exports.deletePostById = (postID) => {
-    Post.destroy({
-        where: { id: postID }
-    }).then(function (data) {
-         resolve(data)
-    }).catch(function(){
-        reject("error in post destroy method");
+    return new Promise((resolve, reject) => {
+        Post.destroy({
+            where: { id: postID }
+        }).then(function (data) {
+            resolve(data)
+        }).catch(function(){
+            reject("error in post destroy method");
+        });
     });
 }

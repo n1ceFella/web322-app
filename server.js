@@ -102,13 +102,16 @@ _server.get("/about", (req, res) => {
     });
 });
 
-_server.get("/posts/add", function (req, res) {
+// _server.get("/posts/add", function (req, res) {
 
-//     _blogService.getCategories().then((data) => {
-//         res.render("addPost", {categories:data});
-// }).catch((err) => {
-//     res.render("addPost", {categories:[]});
-// })
+//         _blogService.getCategories().then((data) => {
+//             res.render("addPost", {categories:data});
+//     }).catch((err) => {
+//         res.render("addPost", {categories:[]});
+//     })
+// });
+
+_server.get("/posts/add", function (req, res) {
 
     _blogService.getCategories().then((data) => {
         res.render("addPost", {
@@ -151,7 +154,7 @@ _server.post("/posts/add",upload.single("featureImage") , (req, res) => {
     }
     upload(req).then((uploaded)=>{
         req.body.featureImage = uploaded.url;
-        // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
+        // TODO: Process the req.body and add it as a new Bloclg Post before redirecting to /posts
         _blogService.addPost(req.body).then(() => {
             res.redirect('/posts')
         }).catch((error) => {
@@ -163,12 +166,9 @@ _server.post("/posts/add",upload.single("featureImage") , (req, res) => {
 
 
 _server.post("/categories/add", (req, res) => {
-    _blogService
-      .addCategory(req.body)
-      .then(() => {
+    _blogService.addCategory(req.body).then(() => {
         res.redirect("/categories");
-      })
-      .catch((error) => {
+      }).catch((error) => {
         res.status(500).send(error);
       });
   });
