@@ -1,8 +1,3 @@
-// const fs = require("fs"); 
-
-// var posts = [];
-// var categories = [];
-
 const Sequelize = require('sequelize');
 var sequelize = new Sequelize("da0dtvoi3cm5d", "xfbrjhkpqmngpv", "46196dd619e050a58d253fb5089152516fb241e7e69618429f7b19bd21705f53", {
     host: 'ec2-54-173-77-184.compute-1.amazonaws.com',
@@ -39,7 +34,6 @@ module.exports.initialize = function() {
 
 module.exports.getAllPosts = function() {
     return new Promise((resolve, reject) => {
-        //sequelize.sync().then(function () {
 
             Post.findAll().then(function(data){
                 resolve(data);
@@ -51,11 +45,10 @@ module.exports.getAllPosts = function() {
 
 };
 module.exports.getPublishedPosts = function() {
-    //sequelize.sync().then(function () {
     return new Promise((resolve, reject) => {
         Post.findAll({
             where: {
-                published: true //might be ID
+                published: true
             }
         }).then(function(data){
             resolve(data);
@@ -67,34 +60,29 @@ module.exports.getPublishedPosts = function() {
 };
 module.exports.getCategories = () => {
     return new Promise((resolve, reject) => {
-        //sequelize.sync().then(function () {
             Category.findAll().then(function(data){
                 resolve(data);
             }).catch(function(){
                 reject("no results returned");
             });
-        //});
     });
 }
 
 module.exports.getPostsByCategory = (categoryID) => {
     return new Promise((resolve, reject) => {
-        //sequelize.sync().then(function (categoryID) {
             Post.findAll({
                 where: {
-                    category: categoryID //might be ID
+                    category: categoryID
                 }
             }).then(function(data){
                 resolve(data);
             }).catch(function(){
                 reject("no results returned");
             });
-        //});
 });
 }
 
 module.exports.getPublishedPostsByCategory = (categoryID) => {
-    //sequelize.sync().then(function () {
     return new Promise((resolve, reject) => {
         Post.findAll({
             where: {
@@ -112,7 +100,6 @@ module.exports.getPublishedPostsByCategory = (categoryID) => {
 
 module.exports.getPostsByMinDate = (minDateStr) => {
     return new Promise((resolve, reject) => {
-        //sequelize.sync().then(function (categoryID) {
             const { gte } = Sequelize.Op;
             Post.findAll({
                 where: {
@@ -123,23 +110,20 @@ module.exports.getPostsByMinDate = (minDateStr) => {
             }).catch(function(){
                 reject("no results returned");
             });
-       // });
     });
 }
 
 module.exports.getPostById = (postID) => {
     return new Promise((resolve, reject) => {
-        //sequelize.sync().then(function (postID) {
             Post.findOne({
                 where: {
-                    id: postID //might be ID
+                    id: postID
                 }
             }).then(function(data){
                 resolve(data);
             }).catch(function(){
                 reject("no results returned");
             });
-        //});
     });
 }
 
@@ -158,7 +142,7 @@ module.exports.addPost = (postData) => {
             postDate: postData.postDate,
             featureImage: postData.featureImage,
             published: postData.published,
-            category: postData.Category
+            category: postData.category
         }).then(function (post) {
             resolve(post)
         }).catch(function(){

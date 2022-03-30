@@ -89,39 +89,19 @@ _server.get("/", (req, res) => {
 });
 
 _server.get("/about", (req, res) => {
-    var someData = {
-        name: "Volodymyr",
-        age: 31,
-        occupation: "developer",
-        company: "self employed"
-    };
-    
     res.render('about', {
-        data: someData,
+        data: null,
         layout: 'main.hbs' // do not use the default Layout (main.hbs)
     });
 });
 
-// _server.get("/posts/add", function (req, res) {
-
-//         _blogService.getCategories().then((data) => {
-//             res.render("addPost", {categories:data});
-//     }).catch((err) => {
-//         res.render("addPost", {categories:[]});
-//     })
-// });
-
 _server.get("/posts/add", function (req, res) {
 
-    _blogService.getCategories().then((data) => {
-        res.render("addPost", {
-          categories: data,
-        });
-      }).catch(() => {
-        res.render("addPost", {
-          categories: [],
-        });
-      });
+        _blogService.getCategories().then((data) => {
+            res.render("addPost", {categories:data});
+    }).catch((err) => {
+        res.render("addPost", {categories:[]});
+    })
 });
 
 _server.get("/categories/add", function (req, res) {
@@ -161,7 +141,6 @@ _server.post("/posts/add",upload.single("featureImage") , (req, res) => {
             res.status(500).send(error)
         });
     });
-//     //_blogService.addPost()
 });
 
 
@@ -172,43 +151,6 @@ _server.post("/categories/add", (req, res) => {
         res.status(500).send(error);
       });
   });
-
-  //MY!!!!
-//   _server.post("/categories/add",upload.single("featureImage"), (req, res) => {
-//     let streamUpload = (req) => {
-//         return new Promise((resolve, reject) => {
-//             let stream = cloudinary.uploader.upload_stream(
-//                 (error, result) => {
-//                     if (result) {
-//                         resolve(result);
-//                      } else {
-//                         reject(error);
-//                     }
-//                 }
-//             );
-    
-//             streamifier.createReadStream(req.file.buffer).pipe(stream);
-//         });
-//     };
-    
-//     async function upload(req) {
-//         let result = await streamUpload(req);
-//         console.log(result);
-//         return result;
-//     }
-    
-//     upload(req).then((uploaded)=>{
-//         req.body.featureImage = uploaded.url;
-    
-//         // TODO: Process the req.body and add it as a new Blog Post before redirecting to /posts
-//         _blogService.addCategory(req.body).then(() => {
-//             res.redirect('/categories'); //  /category
-//         }).catch((error) => {
-//             res.status(500).send(error);
-//         });
-//     });
-// });
-    
 
 _server.get('/blog', async (req, res) => {
 
@@ -335,7 +277,7 @@ _server.get("/categories", (req, res) => {
 _server.get("/categories/delete/:id", (req, res) => {
     _blogService.deleteCategoryById(req.params.id).then(() => {
         resolve();
-        res.redirect('/categories'); //might be redundant
+        res.redirect('/categories');
     }).catch(() => {
         res.status(500).send(error);
         reject("Unable to Remove Category / Category not found)");
@@ -345,7 +287,7 @@ _server.get("/categories/delete/:id", (req, res) => {
 _server.get("/posts/delete/:id", (req, res) => {
     _blogService.deletePostById(req.params.id).then(() => {
         resolve();
-        res.redirect('/posts'); //might be redundant
+        res.redirect('/posts');
     }).catch(() => {
         res.status(500).send(error);
         reject("Unable to Remove Post / Post not found)");
