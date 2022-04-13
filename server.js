@@ -25,6 +25,7 @@ const exphbs = require('express-handlebars');
 const stripJs = require('strip-js');
 const { resolve } = require("path");
 _server.use(express.urlencoded({extended: true}));
+const authData = require("./auth-service");
 
 
 cloudinary.config({
