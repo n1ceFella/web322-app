@@ -26,6 +26,9 @@ const stripJs = require('strip-js');
 const { resolve } = require("path");
 _server.use(express.urlencoded({extended: true}));
 const authData = require("./auth-service");
+const clientSessions = require("client-sessions");
+
+
 
 
 cloudinary.config({
@@ -77,6 +80,16 @@ function onHttpStart() {
     console.log("Express http server listening on port: " + HTTP_PORT);
 }
 
+//Once this is complete, incorporate the following custom middleware function to ensure that 
+//all of your templates will have access to a "session" object (ie: {{session.userName}} for
+// example) - we will need this to conditionally hide/show elements to the user depending on
+// whether they're currently logged in.
+app.use(function(req, res, next) {
+    res.locals.session = req.session;
+    next();
+  });
+  
+
 _server.use(function(req,res,next){
     let route = req.path.substring(1);
     _server.locals.activeRoute = (route == "/") ? "/" : "/" + route.replace(/\/(.*)/, "");
@@ -84,6 +97,54 @@ _server.use(function(req,res,next){
     next();
 });
 
+_server.use(clientSessions({
+    cookieName: "session", // this is the object name that will be added to 'req'
+    secret: "week10example_web322", // this should be a long un-guessable string.
+    duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
+    activeDuration: 1000 * 60 // the session will be extended by this many ms each request (1 minute)
+  }));
+
+  function ensureLogin(req, res, next) {
+    if (!req.session.user) {
+      res.redirect("/login");
+    } else {
+      next();
+    }
+  }
+
+_server.get("/login", function (req, res) { //  ensureLogin,
+    res.render("login", {
+      data: null,
+      layout: "login.hbs",
+    });
+});
+
+_server.get("/register", function (req, res) {
+    res.render("register", {
+      data: null,
+      layout: "register.hbs",
+    });
+});
+
+_server.get("/logout", function(req, res) {
+    req.session.reset();
+    res.redirect("/");
+  });
+
+  _server.get("/userHistory", ensureLogin, function (req, res) {
+    res.render("userHistory", {
+      data: null,
+      layout: "userHistory.hbs",
+    });
+});
+
+_server.post("/register", ensureLogin, (req, res) => {
+    authData.registerUser(req.body.userData).then(() => {
+        res.render("register.hbs", {successMessage: "User created"}); //????????????????????????????????????????
+      }).catch((err) => {
+        res.render("register.hbs", {errorMessage: err, userName: req.body.userName});
+      });
+});
  
 _server.get("/", (req, res) => {
     res.redirect('/blog');
@@ -96,7 +157,7 @@ _server.get("/about", (req, res) => {
     });
 });
 
-_server.get("/posts/add", function (req, res) {
+_server.get("/posts/add", ensureLogin, function (req, res) {
 
         _blogService.getCategories().then((data) => {
             res.render("addPost", {categories:data});
@@ -105,14 +166,14 @@ _server.get("/posts/add", function (req, res) {
     })
 });
 
-_server.get("/categories/add", function (req, res) {
+_server.get("/categories/add", ensureLogin, function (req, res) {
     res.render("addCategory", {
       data: null,
       layout: "main",
     });
 });
 
-_server.post("/posts/add",upload.single("featureImage") , (req, res) => {
+_server.post("/posts/add", ensureLogin, upload.single("featureImage"), (req, res) => {
     let streamUpload = (req) => {
         return new Promise((resolve, reject) => {
             let stream = cloudinary.uploader.upload_stream(
@@ -145,7 +206,7 @@ _server.post("/posts/add",upload.single("featureImage") , (req, res) => {
 });
 
 
-_server.post("/categories/add", (req, res) => {
+_server.post("/categories/add", ensureLogin, (req, res) => {
     _blogService.addCategory(req.body).then(() => {
         res.redirect("/categories");
       }).catch((error) => {
@@ -193,7 +254,7 @@ _server.get('/blog', async (req, res) => {
 
 });
 
-_server.get("/posts", (req, res) => {
+_server.get("/posts", ensureLogin, (req, res) => {
     if(req.query.category){
         _blogService.getPostsByCategory(req.query.category).then((data) => {
             if(data.length > 0)
@@ -264,7 +325,7 @@ _server.get('/blog/:id', async (req, res) => {
     res.render("blog", {data: viewData})
 });
 
-_server.get("/categories", (req, res) => {
+_server.get("/categories", ensureLogin, (req, res) => {
     _blogService.getCategories().then((data) => {
         if(data.length > 0)
             res.render("categories", {categories:data});
@@ -275,7 +336,7 @@ _server.get("/categories", (req, res) => {
     })
 });
 
-_server.get("/categories/delete/:id", (req, res) => {
+_server.get("/categories/delete/:id", ensureLogin, (req, res) => {
     _blogService.deleteCategoryById(req.params.id).then(() => {
         resolve();
         res.redirect('/categories');
@@ -285,7 +346,7 @@ _server.get("/categories/delete/:id", (req, res) => {
     })
 });
 
-_server.get("/posts/delete/:id", (req, res) => {
+_server.get("/posts/delete/:id", ensureLogin, (req, res) => {
     _blogService.deletePostById(req.params.id).then(() => {
         resolve();
         res.redirect('/posts');
@@ -299,7 +360,7 @@ _server.get("*", (req, res) => {
     res.sendFile(_path.join(__dirname, "./views/error.html"));
 })
 
-_blogService.initialize().then(() => {
+_blogService.initialize().then(authData.initialize).then(() => {
     _server.listen(HTTP_PORT, onHttpStart);
 }).catch((err) => {
     console.log(err);
