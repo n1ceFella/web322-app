@@ -84,7 +84,7 @@ function onHttpStart() {
 //all of your templates will have access to a "session" object (ie: {{session.userName}} for
 // example) - we will need this to conditionally hide/show elements to the user depending on
 // whether they're currently logged in.
-app.use(function(req, res, next) {
+_server.use(function(req, res, next) {
     res.locals.session = req.session;
     next();
   });
