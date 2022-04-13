@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 var mongoose = require("mongoose");
 const { user } = require("pg/lib/defaults");
 var Schema = mongoose.Schema;
@@ -33,13 +34,20 @@ module.exports.registerUser = (userData) => {
             reject("Passwords do not match");
         }else {
             let newUser = new User(userData);
-            newUser.save((err) => {
-                if(err.code == 11000){
-                    reject("User Name already taken");
-                } else if(err.code != 11000){
-                    reject("There was an error creating the user: " + err );
-                }else resolve();
+            bcrypt.hash(userData.password, 10).then(hash=>{ // Hash the password using a Salt that was generated using 10 rounds
+                newUser.save((err) => {
+                    if(err.code == 11000){
+                        reject("User Name already taken");
+                    } else if(err.code != 11000){
+                        reject("There was an error creating the user: " + err );
+                    }else resolve();
+                });
+            })
+            .catch(err=>{
+                console.log("There was an error encrypting the password"); // Show any errors that occurred during the process
             });
+            
+
         }
     });
 }
@@ -50,16 +58,18 @@ module.exports.checkUser = (userData) => {
         .then((users) => {
             if(users.length == 0)
                 reject("Unable to find user:" + user );
-            else if(users[0].password != userData.password)
-                reject("Incorrect Password for user: " + userName);
-            else {
-                user[0].loginHistory.push({dateTime: (new Date()).toString(), userAgent: userData.userAgent}); //check this
-                User.updateOne(
-                    { userName: user[0].userName},
-                    { $set: { loginHistory: users[0].loginHistory } }
-                  ).exec(users[0]);
-                resolve(users[0])
-            }
+            bcrypt.compare(userData.password, hash).then((result) => {
+                if(result){
+                    user[0].loginHistory.push({dateTime: (new Date()).toString(), userAgent: userData.userAgent}); //check this
+                    User.updateOne(
+                        { userName: user[0].userName},
+                        { $set: { loginHistory: users[0].loginHistory } }
+                      ).exec(users[0]).then(() => {
+                    resolve(users[0])});
+                }else{
+                    reject("Incorrect Password for user: " + userData.userName);
+                }
+            });
             reject("There was an error verifying the user: " + err);
         }).catch((err) => {
             reject(reject("There was an error verifying the user: " + userData.userName));

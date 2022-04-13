@@ -146,9 +146,26 @@ _server.post("/register", ensureLogin, (req, res) => {
       });
 });
  
+_server.post("/login", ensureLogin, (req, res) => {
+    req.body.userAgent = req.get('User-Agent');
+    authData.registerUser(req.body.userData).then(() => {
+        authData.checkUser(req.body).then((user) => {
+            req.session.user = {
+                userName: user.userName, // authenticated user's userName
+                email: user.email,// authenticated user's email
+                loginHistory: user.loginHistory// authenticated user's loginHistory
+            }
+            res.redirect("/posts");
+        });
+    }).catch((err) => {
+        res.render("login.hbs", {errorMessage: err, userName: req.body.userName});
+    });
+});
+
 _server.get("/", (req, res) => {
     res.redirect('/blog');
 });
+
 
 _server.get("/about", (req, res) => {
     res.render('about', {
