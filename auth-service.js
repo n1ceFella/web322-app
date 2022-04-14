@@ -33,8 +33,10 @@ module.exports.registerUser = (userData) => {
         if(userData.password != userData.password2){
             reject("Passwords do not match");
         }else {
-            let newUser = new User(userData);
+            
             bcrypt.hash(userData.password, 10).then(hash=>{ // Hash the password using a Salt that was generated using 10 rounds
+                let newUser = new User(userData);
+                userData.password = hash;
                 newUser.save((err) => {
                     if(err.code == 11000){
                         reject("User Name already taken");
