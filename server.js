@@ -159,6 +159,7 @@ _server.post("/login", (req, res) => {
         }).catch((err) => {
         res.render("login.hbs", {errorMessage: err, userName: req.body.userName});
     });
+//});
 });
 
 _server.get("/", (req, res) => {

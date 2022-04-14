@@ -41,13 +41,12 @@ module.exports.registerUser = (userData) => {
                     if(err){                    
                         if(err.code == 11000){
                         reject("User Name already taken");
-                        } else if(err.code != 11000){
+                        } else
                         reject("There was an error creating the user: " + err );
                     }
                     else{
                         resolve();
-                    } 
-                }
+                    }
                 });
             }).catch(err=>{
                 console.log("There was an error encrypting the password: " + err); // Show any errors that occurred during the process
@@ -70,17 +69,18 @@ module.exports.checkUser = (userData) => {
                     User.updateOne(
                         { userName: users[0].userName},
                         { $set: { loginHistory: users[0].loginHistory } }
-                      ).exec(users[0]).then(() => {
-                    resolve(users[0])});
+                      ).exec().then(() => {
+                    resolve(users[0])}); 
                 }else{
                     reject("Incorrect Password for user: " + userData.userName);
                 }
-            });
-            reject("There was an error verifying the user: " + err);
+            }).catch((err) =>{
+                reject("There was an error verifying the user: " + err);
+            })
         }
+
         }).catch((err) => {
             reject(reject("There was an error verifying the user: " + userData.userName));
         });
-        
     });
 }
