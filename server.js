@@ -27,6 +27,7 @@ const { resolve } = require("path");
 _server.use(express.urlencoded({extended: true}));
 const authData = require("./auth-service");
 const clientSessions = require("client-sessions");
+const { mainModule } = require("process");
 
 
 
@@ -115,14 +116,14 @@ _server.use(clientSessions({
 _server.get("/login", function (req, res) { //  ensureLogin,
     res.render("login", {
       data: null,
-      layout: "login.hbs",
+      layout: "main.hbs",
     });
 });
 
 _server.get("/register", function (req, res) {
     res.render("register", {
       data: null,
-      layout: "register.hbs",
+      layout: "main.hbs",
     });
 });
 
