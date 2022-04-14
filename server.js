@@ -119,7 +119,7 @@ _server.get("/login", function (req, res) { //  ensureLogin,
       layout: "main.hbs",
     });
 });
-
+s
 _server.get("/register", function (req, res) {
     res.render("register", {
       data: null,
@@ -149,7 +149,7 @@ _server.post("/register", (req, res) => {
  
 _server.post("/login", (req, res) => {
     req.body.userAgent = req.get('User-Agent');
-    authData.registerUser(req.body).then(() => {
+    //authData.registerUser(req.body).then(() => {
         authData.checkUser(req.body).then((user) => {
             req.session.user = {
                 userName: user.userName, // authenticated user's userName
@@ -157,8 +157,7 @@ _server.post("/login", (req, res) => {
                 loginHistory: user.loginHistory// authenticated user's loginHistory
             }
             res.redirect("/posts");
-        });
-    }).catch((err) => {
+        }).catch((err) => {
         res.render("login.hbs", {errorMessage: err, userName: req.body.userName});
     });
 });

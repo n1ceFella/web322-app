@@ -60,9 +60,9 @@ module.exports.checkUser = (userData) => {
                 reject("Unable to find user:" + user );
             bcrypt.compare(userData.password, hash).then((result) => {
                 if(result){
-                    user[0].loginHistory.push({dateTime: (new Date()).toString(), userAgent: userData.userAgent}); //check this
+                    users[0].loginHistory.push({dateTime: (new Date()).toString(), userAgent: userData.userAgent}); //check this
                     User.updateOne(
-                        { userName: user[0].userName},
+                        { userName: users[0].userName},
                         { $set: { loginHistory: users[0].loginHistory } }
                       ).exec(users[0]).then(() => {
                     resolve(users[0])});
