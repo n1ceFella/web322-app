@@ -33,22 +33,25 @@ module.exports.registerUser = (userData) => {
         if(userData.password != userData.password2){
             reject("Passwords do not match");
         }else {
-            
             bcrypt.hash(userData.password, 10).then(hash=>{ // Hash the password using a Salt that was generated using 10 rounds
-                let newUser = new User(userData);
                 userData.password = hash;
+                let newUser = new User(userData);
+                
                 newUser.save((err) => {
-                    if(err.code == 11000){
+                    if(err){                    
+                        if(err.code == 11000){
                         reject("User Name already taken");
-                    } else if(err.code != 11000){
+                        } else if(err.code != 11000){
                         reject("There was an error creating the user: " + err );
-                    }else resolve(newUser);
+                    }
+                    else{
+                        resolve();
+                    } 
+                }
                 });
             }).catch(err=>{
                 console.log("There was an error encrypting the password: " + err); // Show any errors that occurred during the process
             });
-            
-
         }
     });
 }
