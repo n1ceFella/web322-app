@@ -114,14 +114,13 @@ _server.use(clientSessions({
   }
 
 _server.get("/login", function (req, res) { //  ensureLogin,
-    res.render("login", {
+    res.render("login.hbs", {
       data: null,
       layout: "main.hbs",
     });
 });
-s
 _server.get("/register", function (req, res) {
-    res.render("register", {
+    res.render("register.hbs", {
       data: null,
       layout: "main.hbs",
     });

@@ -40,11 +40,10 @@ module.exports.registerUser = (userData) => {
                         reject("User Name already taken");
                     } else if(err.code != 11000){
                         reject("There was an error creating the user: " + err );
-                    }else resolve();
+                    }else resolve(newUser);
                 });
-            })
-            .catch(err=>{
-                console.log("There was an error encrypting the password"); // Show any errors that occurred during the process
+            }).catch(err=>{
+                console.log("There was an error encrypting the password: " + err); // Show any errors that occurred during the process
             });
             
 
@@ -56,9 +55,11 @@ module.exports.checkUser = (userData) => {
     return new Promise((resolve, reject) => {
         User.find({userName: userData.userName}).exec()
         .then((users) => {
-            if(users.length == 0)
-                reject("Unable to find user:" + user );
-            bcrypt.compare(userData.password, hash).then((result) => {
+            if(users.length == 0){
+                reject("Unable to find user:" + users[0]);
+            }
+            else{
+            bcrypt.compare(userData.password, users[0].password).then((result) => {
                 if(result){
                     users[0].loginHistory.push({dateTime: (new Date()).toString(), userAgent: userData.userAgent}); //check this
                     User.updateOne(
@@ -71,8 +72,10 @@ module.exports.checkUser = (userData) => {
                 }
             });
             reject("There was an error verifying the user: " + err);
+        }
         }).catch((err) => {
             reject(reject("There was an error verifying the user: " + userData.userName));
         });
+        
     });
 }
