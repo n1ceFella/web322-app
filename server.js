@@ -139,17 +139,17 @@ _server.get("/logout", function(req, res) {
     });
 });
 
-_server.post("/register", ensureLogin, (req, res) => {
-    authData.registerUser(req.body.userData).then(() => {
+_server.post("/register", (req, res) => {
+    authData.registerUser(req.body).then(() => {
         res.render("register.hbs", {successMessage: "User created"}); //????????????????????????????????????????
       }).catch((err) => {
         res.render("register.hbs", {errorMessage: err, userName: req.body.userName});
       });
 });
  
-_server.post("/login", ensureLogin, (req, res) => {
+_server.post("/login", (req, res) => {
     req.body.userAgent = req.get('User-Agent');
-    authData.registerUser(req.body.userData).then(() => {
+    authData.registerUser(req.body).then(() => {
         authData.checkUser(req.body).then((user) => {
             req.session.user = {
                 userName: user.userName, // authenticated user's userName
