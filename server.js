@@ -85,6 +85,14 @@ function onHttpStart() {
 //all of your templates will have access to a "session" object (ie: {{session.userName}} for
 // example) - we will need this to conditionally hide/show elements to the user depending on
 // whether they're currently logged in.
+
+_server.use(clientSessions({
+    cookieName: "session", // this is the object name that will be added to 'req'
+    secret: "week10example_web322", // this should be a long un-guessable string.
+    duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
+    activeDuration: 1000 * 60 // the session will be extended by this many ms each request (1 minute)
+  }));
+
 _server.use(function(req, res, next) {
     res.locals.session = req.session;
     next();
@@ -98,12 +106,7 @@ _server.use(function(req,res,next){
     next();
 });
 
-_server.use(clientSessions({
-    cookieName: "session", // this is the object name that will be added to 'req'
-    secret: "week10example_web322", // this should be a long un-guessable string.
-    duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
-    activeDuration: 1000 * 60 // the session will be extended by this many ms each request (1 minute)
-  }));
+
 
   function ensureLogin(req, res, next) {
     if (!req.session.user) {
@@ -114,16 +117,10 @@ _server.use(clientSessions({
   }
 
 _server.get("/login", function (req, res) { //  ensureLogin,
-    res.render("login.hbs", {
-      data: null,
-      layout: "main.hbs",
-    });
+    res.render("login");
 });
 _server.get("/register", function (req, res) {
-    res.render("register.hbs", {
-      data: null,
-      layout: "main.hbs",
-    });
+    res.render("register");
 });
 
 _server.get("/logout", function(req, res) {
@@ -132,17 +129,14 @@ _server.get("/logout", function(req, res) {
   });
 
   _server.get("/userHistory", ensureLogin, function (req, res) {
-    res.render("userHistory", {
-      data: null,
-      layout: "userHistory.hbs",
-    });
+    res.render("userHistory");
 });
 
 _server.post("/register", (req, res) => {
     authData.registerUser(req.body).then(() => {
-        res.render("register.hbs", {successMessage: "User created"}); //????????????????????????????????????????
+        res.render("register", {successMessage: "User created"}); //????????????????????????????????????????
       }).catch((err) => {
-        res.render("register.hbs", {errorMessage: err, userName: req.body.userName});
+        res.render("register", {errorMessage: err, userName: req.body.userName});
       });
 });
  
@@ -157,7 +151,7 @@ _server.post("/login", (req, res) => {
             }
             res.redirect("/posts");
         }).catch((err) => {
-        res.render("login.hbs", {errorMessage: err, userName: req.body.userName});
+        res.render("login", {errorMessage: err, userName: req.body.userName});
     });
 //});
 });
@@ -168,10 +162,7 @@ _server.get("/", (req, res) => {
 
 
 _server.get("/about", (req, res) => {
-    res.render('about', {
-        data: null,
-        layout: 'main.hbs' // do not use the default Layout (main.hbs)
-    });
+    res.render('about');
 });
 
 _server.get("/posts/add", ensureLogin, function (req, res) {
@@ -184,10 +175,7 @@ _server.get("/posts/add", ensureLogin, function (req, res) {
 });
 
 _server.get("/categories/add", ensureLogin, function (req, res) {
-    res.render("addCategory", {
-      data: null,
-      layout: "main",
-    });
+    res.render("addCategory");
 });
 
 _server.post("/posts/add", ensureLogin, upload.single("featureImage"), (req, res) => {

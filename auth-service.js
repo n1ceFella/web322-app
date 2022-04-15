@@ -70,6 +70,7 @@ module.exports.checkUser = (userData) => {
                         { userName: users[0].userName},
                         { $set: { loginHistory: users[0].loginHistory } }
                       ).exec().then(() => {
+                    console.log(users[0]);
                     resolve(users[0])}); 
                 }else{
                     reject("Incorrect Password for user: " + userData.userName);
