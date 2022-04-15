@@ -1,9 +1,9 @@
 /*********************************************************************************
-*  WEB322 – Assignment 05
+*  WEB322 – Assignment 06
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Volodymyr Labliuk Student ID: 147302202 Date: 29.03.2022
+*  Name: Volodymyr Labliuk Student ID: 147302202 Date: 15.04.2022
 *
 *  Online (Heroku) URL: https://afternoon-temple-65298.herokuapp.com/
 *
@@ -13,8 +13,6 @@
 
 
 const express = require("express");
-// const { listen } = require("express/lib/application");
-// const { send } = require("express/lib/response");
 const _path = require("path");
 const _blogService = require("./blog-service");
 const _server = express();
@@ -105,8 +103,6 @@ _server.use(function(req,res,next){
     _server.locals.viewingCategory = req.query.category;
     next();
 });
-
-
 
   function ensureLogin(req, res, next) {
     if (!req.session.user) {
